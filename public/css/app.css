@@ -1,0 +1,544 @@
+/* ==========================================================================
+   MINIMALIST DARK DESIGN SYSTEM (ZINC BASED)
+   ========================================================================== */
+
+:root {
+    --bg-color: #09090b;             /* Zinc 950 */
+    --card-bg: #18181b;              /* Zinc 900 */
+    --card-border: #27272a;          /* Zinc 800 */
+    --card-border-hover: #3f3f46;    /* Zinc 700 */
+    --text-primary: #f4f4f5;         /* Zinc 100 */
+    --text-secondary: #a1a1aa;       /* Zinc 400 */
+    --text-muted: #71717a;           /* Zinc 500 */
+    
+    --accent-color: #6366f1;         /* Indigo 500 */
+    --accent-hover: #4f46e5;         /* Indigo 600 */
+    --success-color: #10b981;        /* Emerald 500 */
+    --danger-color: #ef4444;         /* Red 500 */
+    --warning-color: #f59e0b;        /* Amber 500 */
+}
+
+/* ==========================================================================
+   LIGHT MODE THEME OVERRIDES
+   ========================================================================== */
+[data-theme="light"] {
+    --bg-color: #f4f4f5;             /* Zinc 100 */
+    --card-bg: #ffffff;              /* White */
+    --card-border: #e4e4e7;          /* Zinc 200 */
+    --card-border-hover: #d4d4d8;    /* Zinc 300 */
+    --text-primary: #09090b;         /* Zinc 950 */
+    --text-secondary: #52525b;       /* Zinc 600 */
+    --text-muted: #71717a;           /* Zinc 500 */
+    
+    --accent-color: #4f46e5;         /* Indigo 600 */
+    --accent-hover: #4338ca;         /* Indigo 700 */
+}
+
+/* Light mode specific element fixes */
+[data-theme="light"] .text-white,
+[data-theme="light"] .text-light {
+    color: var(--text-primary) !important;
+}
+[data-theme="light"] .text-white-50 {
+    color: var(--text-secondary) !important;
+}
+[data-theme="light"] .table-dark {
+    --bs-table-bg: var(--card-bg) !important;
+    --bs-table-color: var(--text-primary) !important;
+    --bs-table-border-color: var(--card-border) !important;
+    --bs-table-hover-bg: rgba(0, 0, 0, 0.02) !important;
+    --bs-table-hover-color: var(--text-primary) !important;
+}
+[data-theme="light"] .alert-danger {
+    background-color: rgba(239, 68, 68, 0.05) !important;
+    border-color: rgba(239, 68, 68, 0.15) !important;
+    color: #b91c1c !important;
+}
+[data-theme="light"] .alert-warning {
+    background-color: rgba(245, 158, 11, 0.05) !important;
+    border-color: rgba(245, 158, 11, 0.15) !important;
+    color: #b45309 !important;
+}
+[data-theme="light"] .alert-success {
+    background-color: rgba(16, 185, 129, 0.05) !important;
+    border-color: rgba(16, 185, 129, 0.15) !important;
+    color: #047857 !important;
+}
+[data-theme="light"] .alert-info {
+    background-color: rgba(99, 102, 241, 0.05) !important;
+    border-color: rgba(99, 102, 241, 0.15) !important;
+    color: #4338ca !important;
+}
+[data-theme="light"] .calendar-cell:hover {
+    background: rgba(0, 0, 0, 0.02) !important;
+}
+[data-theme="light"] .course-card:hover, [data-theme="light"] .my-course-item:hover {
+    background: rgba(0, 0, 0, 0.01) !important;
+}
+
+
+body {
+    font-family: 'Inter', sans-serif !important;
+    background-color: var(--bg-color) !important;
+    background-image: none !important; /* Remove any gradient background */
+    color: var(--text-primary) !important;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6, .display-font {
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 600 !important;
+    color: var(--text-primary) !important;
+}
+
+/* ==========================================================================
+   COMPONENTS REDESIGN
+   ========================================================================== */
+
+/* Flat Minimal Cards (Replaces Glassmorphism) */
+.glass-card {
+    background: var(--card-bg) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1) !important;
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.glass-card:hover {
+    transform: none !important; /* Remove bounce-up effect */
+    border-color: var(--card-border-hover) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Navbar */
+.custom-navbar {
+    background: var(--card-bg) !important;
+    backdrop-filter: none !important;
+    border-bottom: 1px solid var(--card-border) !important;
+}
+
+.navbar-brand {
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 1.25rem !important;
+    background: none !important;
+    -webkit-background-clip: initial !important;
+    -webkit-text-fill-color: initial !important;
+    color: var(--text-primary) !important;
+    display: flex;
+    align-items: center;
+}
+
+.navbar-brand i {
+    color: var(--accent-color);
+}
+
+.text-accent {
+    color: var(--accent-color) !important;
+}
+
+/* Form Controls */
+.form-control, .form-select, .input-group-text {
+    background-color: var(--bg-color) !important;
+    border: 1px solid var(--card-border) !important;
+    color: var(--text-primary) !important;
+    border-radius: 6px !important;
+    padding: 8px 12px !important;
+    font-size: 0.9rem !important;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: var(--bg-color) !important;
+    border-color: var(--text-muted) !important;
+    color: var(--text-primary) !important;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05) !important;
+}
+
+.form-control::placeholder {
+    color: var(--text-muted) !important;
+    opacity: 0.8;
+}
+
+/* Buttons */
+/* Primary Action (Solid White/High Contrast) */
+.btn-accent {
+    background-color: var(--text-primary) !important;
+    border: 1px solid var(--text-primary) !important;
+    color: var(--bg-color) !important;
+    font-weight: 500 !important;
+    border-radius: 6px !important;
+    padding: 8px 16px !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease !important;
+}
+
+.btn-accent:hover, .btn-accent:focus {
+    background-color: #e4e4e7 !important; /* Zinc 200 */
+    border-color: #e4e4e7 !important;
+    color: var(--bg-color) !important;
+    transform: none !important;
+}
+
+.btn-accent:disabled {
+    background-color: var(--card-border) !important;
+    border-color: var(--card-border) !important;
+    color: var(--text-muted) !important;
+    opacity: 0.6;
+}
+
+/* Secondary Action (Outline/Flat Dark) */
+.btn-outline-custom {
+    background-color: transparent !important;
+    border: 1px solid var(--card-border) !important;
+    color: var(--text-primary) !important;
+    font-weight: 500 !important;
+    border-radius: 6px !important;
+    padding: 8px 16px !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease !important;
+}
+
+.btn-outline-custom:hover {
+    background-color: var(--card-border) !important;
+    border-color: var(--card-border-hover) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Modals */
+.modal-dialog {
+    max-width: 420px !important;
+}
+
+.modal-content {
+    background: var(--card-bg) !important;
+    backdrop-filter: none !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 12px !important;
+    color: var(--text-primary) !important;
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--card-border) !important;
+    padding: 16px 20px !important;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--card-border) !important;
+    padding: 16px 20px !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-color);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--card-border);
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* Badges (Flat Translucent) */
+.badge {
+    font-weight: 500 !important;
+    padding: 4px 8px !important;
+    border-radius: 4px !important;
+    font-size: 0.75rem !important;
+}
+
+.badge-attesa {
+    background-color: rgba(245, 158, 11, 0.1) !important;
+    color: var(--warning-color) !important;
+    border: 1px solid rgba(245, 158, 11, 0.2) !important;
+}
+
+.badge-approvato {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+    color: var(--success-color) !important;
+    border: 1px solid rgba(16, 185, 129, 0.2) !important;
+}
+
+.badge-rifiutato {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+    color: var(--danger-color) !important;
+    border: 1px solid rgba(239, 68, 68, 0.2) !important;
+}
+
+/* ==========================================================================
+   DASHBOARD-SPECIFIC WIDGETS
+   ========================================================================== */
+
+/* Tabs Navigation */
+.nav-tabs {
+    border-bottom: 1px solid var(--card-border) !important;
+}
+
+.nav-tabs .nav-link {
+    color: var(--text-secondary) !important;
+    border: none !important;
+    border-radius: 0 !important;
+    border-bottom: 2px solid transparent !important;
+    padding: 12px 20px !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    transition: color 0.15s ease, border-color 0.15s ease !important;
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--text-primary) !important;
+    border-bottom: 2px solid var(--card-border-hover) !important;
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--text-primary) !important;
+    background: transparent !important;
+    border-bottom: 2px solid var(--text-primary) !important;
+}
+
+/* Course Cards Selector */
+.course-card, .my-course-item {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 8px !important;
+    padding: 16px !important;
+    cursor: pointer !important;
+    transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease !important;
+}
+
+.course-card:hover, .my-course-item:hover {
+    border-color: var(--card-border-hover) !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+    transform: none !important;
+}
+
+.course-card.active, .my-course-item.active {
+    background: rgba(99, 102, 241, 0.05) !important;
+    border-color: var(--accent-color) !important;
+    box-shadow: none !important;
+}
+
+/* Calendar Scheduler Grid */
+.calendar-container {
+    overflow-x: auto;
+}
+
+.calendar-table {
+    width: 100%;
+    min-width: 800px;
+    border-collapse: separate;
+    border-spacing: 4px;
+}
+
+.calendar-table th {
+    background: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--card-border) !important;
+    font-family: 'Outfit', sans-serif;
+    text-align: center;
+    padding: 8px !important;
+    border-radius: 6px !important;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+.calendar-time-col {
+    width: 100px;
+    background: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    color: var(--text-secondary) !important;
+    font-weight: 500;
+    font-size: 0.8rem;
+    text-align: center;
+    vertical-align: middle;
+    border-radius: 6px;
+}
+
+.calendar-cell {
+    height: 80px;
+    background: transparent !important;
+    border: 1px dashed var(--card-border) !important;
+    border-radius: 6px !important;
+    padding: 6px !important;
+    vertical-align: top;
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease !important;
+    cursor: pointer;
+}
+
+.calendar-cell:hover {
+    background: rgba(255, 255, 255, 0.02) !important;
+    border-style: solid !important;
+    border-color: var(--card-border-hover) !important;
+}
+
+/* Booked Cell (Own Reservation) */
+.calendar-cell.booked {
+    background: rgba(16, 185, 129, 0.08) !important;
+    border: 1px solid rgba(16, 185, 129, 0.4) !important;
+    cursor: pointer !important;
+}
+
+.calendar-cell.booked:hover {
+    background: rgba(16, 185, 129, 0.12) !important;
+    transform: none !important;
+}
+
+/* Booked Cell (Other Professor) */
+.calendar-cell.other-booked {
+    background: rgba(239, 68, 68, 0.04) !important;
+    border: 1px solid rgba(239, 68, 68, 0.2) !important;
+    cursor: not-allowed !important;
+}
+
+.calendar-cell.other-booked:hover {
+    transform: none !important;
+    background: rgba(239, 68, 68, 0.04) !important;
+}
+
+/* Booking Details inside cells */
+.booking-info {
+    font-size: 0.7rem !important;
+    line-height: 1.2;
+}
+
+.booking-title {
+    font-weight: 600;
+    color: var(--success-color) !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.booking-other-title {
+    font-weight: 600;
+    color: var(--danger-color) !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.booking-prof {
+    color: var(--text-muted) !important;
+    font-size: 0.65rem;
+    margin-top: 1px;
+}
+
+.booking-time {
+    margin-top: 3px;
+    display: inline-block;
+    padding: 1px 4px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 3px;
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: var(--text-secondary) !important;
+}
+
+/* Lesson Detail Card (Student Dashboard) */
+.lesson-details-card {
+    background: rgba(99, 102, 241, 0.03) !important;
+    border: 1px solid rgba(99, 102, 241, 0.2) !important;
+    border-radius: 12px !important;
+    padding: 20px !important;
+    box-shadow: none !important;
+}
+
+/* Capacity Indicator Bar */
+.capacity-bar {
+    height: 6px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-radius: 3px !important;
+    overflow: hidden;
+    margin: 8px 0;
+}
+
+.capacity-fill {
+    height: 100% !important;
+    background-color: var(--accent-color) !important;
+    border-radius: 3px !important;
+    transition: width 0.3s ease;
+}
+
+.capacity-fill.warning {
+    background-color: var(--warning-color) !important;
+}
+
+.capacity-fill.danger {
+    background-color: var(--danger-color) !important;
+}
+
+/* Search container (Student Dashboard) */
+.search-container {
+    position: relative;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+}
+
+.search-input {
+    padding-left: 36px !important;
+}
+
+/* Animations */
+.animate-fade-in {
+    animation: fadeIn 0.2s ease forwards !important;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Alerts Override */
+.alert {
+    background-color: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    color: var(--text-primary) !important;
+    border-radius: 8px !important;
+}
+
+.alert-danger {
+    border-color: rgba(239, 68, 68, 0.2) !important;
+    background-color: rgba(239, 68, 68, 0.02) !important;
+    color: #fca5a5 !important;
+}
+
+.alert-warning {
+    border-color: rgba(245, 158, 11, 0.2) !important;
+    background-color: rgba(245, 158, 11, 0.02) !important;
+    color: #fcd34d !important;
+}
+
+.alert-success {
+    border-color: rgba(16, 185, 129, 0.2) !important;
+    background-color: rgba(16, 185, 129, 0.02) !important;
+    color: #6ee7b7 !important;
+}
+
+.alert-info {
+    border-color: rgba(99, 102, 241, 0.2) !important;
+    background-color: rgba(99, 102, 241, 0.02) !important;
+    color: #c7d2fe !important;
+}
+
+/* ==========================================================================
+   AUTH PAGES CARD ALIGNMENT & SIZING
+   ========================================================================== */
+.auth-card-wrapper {
+    max-width: 440px;
+    width: 100%;
+    padding: 0 16px;
+}
