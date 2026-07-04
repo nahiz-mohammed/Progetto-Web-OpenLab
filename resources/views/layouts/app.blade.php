@@ -100,7 +100,7 @@
     </footer>
 
     <!-- Toast Notifications -->
-    <div class="toast-container">
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
         <div id="liveToast" class="toast align-items-center text-white border-0 glass-card" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body" id="toast-message"></div>

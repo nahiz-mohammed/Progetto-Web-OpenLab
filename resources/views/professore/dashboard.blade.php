@@ -72,21 +72,27 @@
 
             <!-- Calendario Attivo -->
             <div id="active-calendar-section" class="d-none animate-fade-in">
-                <div class="row mb-4 align-items-center gap-3">
-                    <div class="col-md-6">
+                <div class="row mb-4 align-items-center justify-content-between gap-3">
+                    <div class="col-md-4">
                         <span class="badge bg-accent mb-2">Corso Attivo</span>
-                        <h3 class="text-white mb-0 display-font h4" id="calendar-course-title">NOME CORSO</h3>
+                        <h3 class="text-white mb-0 display-font h5" id="calendar-course-title">NOME CORSO</h3>
                         <p class="text-secondary mb-0 small">Tipologia richiesta: <strong id="calendar-course-type">--</strong></p>
                     </div>
-                    <div class="col-md-5 d-flex justify-content-center align-items-center">
+                    <div class="col-md-4">
+                        <label for="calendar-aula-select" class="form-label text-secondary small fw-bold mb-1">Visualizza Aula / Laboratorio</label>
+                        <select id="calendar-aula-select" class="form-select bg-dark text-white border-secondary">
+                            <option value="">Seleziona un laboratorio...</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 d-flex justify-content-end align-items-center">
                         <button class="btn btn-sm btn-outline-custom me-3" id="btn-prev-week">
-                            <i class="fa-solid fa-chevron-left"></i> Prec.
+                            <i class="fa-solid fa-chevron-left"></i>
                         </button>
-                        <span class="fw-bold display-font text-white" id="current-week-label">
+                        <span class="fw-bold display-font text-white small" id="current-week-label">
                             <!-- Mostra data lunedì - venerdì -->
                         </span>
                         <button class="btn btn-sm btn-outline-custom ms-3" id="btn-next-week">
-                            Succ. <i class="fa-solid fa-chevron-right"></i>
+                            <i class="fa-solid fa-chevron-right"></i>
                         </button>
                     </div>
                 </div>
@@ -152,7 +158,14 @@
     <!-- Tab Gestione Studenti -->
     <div class="tab-pane fade" id="gestione-studenti-pane" role="tabpanel">
         <div class="glass-card p-4">
-            <h3 class="text-white mb-3 display-font h5">Gestione Studenti Approvati / Rifiutati</h3>
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <h3 class="text-white mb-0 display-font h5">Gestione Studenti Approvati / Rifiutati</h3>
+                <div style="min-width: 250px;">
+                    <select id="filter-corso-studenti" class="form-select bg-dark text-white border-secondary">
+                        <option value="all">Tutti i corsi</option>
+                    </select>
+                </div>
+            </div>
             <div class="table-responsive">
                 <table class="table table-dark table-hover border-0 align-middle" id="table-gestione-studenti">
                     <thead>
@@ -196,7 +209,6 @@
                     <div class="mb-3">
                         <label for="Tipologia_Materia" class="form-label text-secondary small fw-bold">Tipologia Materia (Aula richiesta)</label>
                         <input type="text" class="form-control" id="Tipologia_Materia" name="Tipologia_Materia" required placeholder="Es. Elettronica, Informatica, Chimica">
-                        <span class="text-secondary small mt-1 d-block">Nota: Verranno proposte solo aule la cui tipologia corrisponde a questa materia.</span>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -248,10 +260,9 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="form-prenota-aula" class="form-label text-secondary small fw-bold">Seleziona Laboratorio</label>
-                        <select class="form-select" id="form-prenota-aula" name="ID_Aula" required>
-                            <!-- Caricate dinamicamente -->
-                        </select>
+                        <label class="form-label text-secondary small fw-bold">Laboratorio Selezionato</label>
+                        <input type="text" class="form-control" id="form-prenota-aula-label" readonly>
+                        <input type="hidden" id="form-prenota-aula" name="ID_Aula">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -290,11 +301,37 @@
                     <div class="row">
                         <div class="col-6 mb-3">
                             <label for="modifica-prenota-ora-inizio" class="form-label text-secondary small fw-bold">Ora Inizio</label>
-                            <input type="time" class="form-control" id="modifica-prenota-ora-inizio" name="Ora_Inizio" required>
+                            <select class="form-select" id="modifica-prenota-ora-inizio" name="Ora_Inizio" required>
+                                <option value="08:00">08:00</option>
+                                <option value="09:00">09:00</option>
+                                <option value="10:00">10:00</option>
+                                <option value="11:00">11:00</option>
+                                <option value="12:00">12:00</option>
+                                <option value="13:00">13:00</option>
+                                <option value="14:00">14:00</option>
+                                <option value="15:00">15:00</option>
+                                <option value="16:00">16:00</option>
+                                <option value="17:00">17:00</option>
+                                <option value="18:00">18:00</option>
+                                <option value="19:00">19:00</option>
+                            </select>
                         </div>
                         <div class="col-6 mb-3">
                             <label for="modifica-prenota-ora-fine" class="form-label text-secondary small fw-bold">Ora Fine</label>
-                            <input type="time" class="form-control" id="modifica-prenota-ora-fine" name="Ora_Fine" required>
+                            <select class="form-select" id="modifica-prenota-ora-fine" name="Ora_Fine" required>
+                                <option value="09:00">09:00</option>
+                                <option value="10:00">10:00</option>
+                                <option value="11:00">11:00</option>
+                                <option value="12:00">12:00</option>
+                                <option value="13:00">13:00</option>
+                                <option value="14:00">14:00</option>
+                                <option value="15:00">15:00</option>
+                                <option value="16:00">16:00</option>
+                                <option value="17:00">17:00</option>
+                                <option value="18:00">18:00</option>
+                                <option value="19:00">19:00</option>
+                                <option value="20:00">20:00</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -318,6 +355,7 @@
     $(document).ready(function() {
         let activeCorso = null; // Memorizza il corso selezionato
         let corsiList = [];
+        let allIscrizioniGestite = [];
         let allPrenotazioni = [];
         let suitableAule = [];
         let selectedWeekStart = getMonday(new Date()); // Lunedì corrente
@@ -351,6 +389,7 @@
                 success: function(corsi) {
                     corsiList = corsi;
                     renderCorsi(corsi);
+                    updateCorsoFilterOptions(corsi);
                 },
                 error: function() {
                     showToast("Errore nel caricamento dei corsi.", "danger");
@@ -454,25 +493,41 @@
         function populateAuleSelects(aule) {
             const prenotaSelect = $('#form-prenota-aula');
             const modificaSelect = $('#modifica-prenota-aula');
+            const calendarSelect = $('#calendar-aula-select');
             
             prenotaSelect.empty();
             modificaSelect.empty();
+            calendarSelect.empty();
             
             if (aule.length === 0) {
                 const optNull = '<option value="">Nessun laboratorio disponibile</option>';
                 prenotaSelect.append(optNull);
                 modificaSelect.append(optNull);
+                calendarSelect.append(optNull);
                 return;
             }
 
             let html = '';
+            let calendarHtml = '<option value="">Seleziona un laboratorio...</option>';
             aule.forEach(aula => {
-                html += `<option value="${aula.ID_Aula}">${aula.Nome_Aula} (Tipologia: ${aula.Tipologia_Aula}, Capienza: ${aula.Capienza})</option>`;
+                const opt = `<option value="${aula.ID_Aula}">${aula.Nome_Aula} (Tipologia: ${aula.Tipologia_Aula}, Capienza: ${aula.Capienza})</option>`;
+                html += opt;
+                calendarHtml += opt;
             });
 
             prenotaSelect.append(html);
             modificaSelect.append(html);
+            calendarSelect.append(calendarHtml);
+
+            // Auto-select first room
+            if (aule.length > 0) {
+                calendarSelect.val(aule[0].ID_Aula);
+            }
         }
+
+        $(document).on('change', '#calendar-aula-select', function() {
+            renderCalendarGrid();
+        });
 
         // Calendiario e prenotazioni
         function loadTutteLePrenotazioni() {
@@ -487,13 +542,47 @@
             });
         }
 
+        function toSeconds(timeStr) {
+            if (!timeStr) return 0;
+            const parts = timeStr.split(':');
+            const h = parseInt(parts[0], 10) || 0;
+            const m = parseInt(parts[1], 10) || 0;
+            const s = parseInt(parts[2], 10) || 0;
+            return h * 3600 + m * 60 + s;
+        }
+
+        function checkConflict(aulaId, data, oraInizio, oraFine, excludeBookingId = null) {
+            const startSec = toSeconds(oraInizio);
+            const endSec = toSeconds(oraFine);
+            
+            const conflict = allPrenotazioni.find(p => {
+                if (excludeBookingId && p.ID_Prenotazione == excludeBookingId) return false;
+                
+                const pStartSec = toSeconds(p.Ora_Inizio);
+                const pEndSec = toSeconds(p.Ora_Fine);
+                
+                return p.ID_Aula == aulaId &&
+                       p.Data === data &&
+                       pStartSec < endSec &&
+                       pEndSec > startSec;
+            });
+            
+            return conflict;
+        }
+
         function renderCalendarGrid() {
             if (!activeCorso) return;
 
-            updateCalendarDates();
-
+            const selectedAulaId = $('#calendar-aula-select').val();
             const tbody = $('#calendar-tbody');
             tbody.empty();
+
+            if (!selectedAulaId) {
+                tbody.html('<tr><td colspan="6" class="text-center text-secondary py-5"><i class="fa-solid fa-circle-info fa-2x mb-3 d-block"></i>Seleziona un laboratorio dal menu a tendina sopra per visualizzare il calendario e prenotare.</td></tr>');
+                return;
+            }
+
+            updateCalendarDates();
 
             const skipCells = {};
 
@@ -510,14 +599,19 @@
                     cellDate.setDate(selectedWeekStart.getDate() + dayOffset);
                     const cellDateStr = formatDateForSQL(cellDate);
 
-                    const hourStart = fascia.split(' - ')[0] + ':00';
-                    const hourEnd = fascia.split(' - ')[1] + ':00';
+                    const hourStartStr = fascia.split(' - ')[0];
+                    const hourEndStr = fascia.split(' - ')[1];
+                    const hourStartSec = toSeconds(hourStartStr);
+                    const hourEndSec = toSeconds(hourEndStr);
 
-                    // Cerca se esiste una prenotazione
+                    // Cerca se esiste una prenotazione per QUESTA AULA SPECIFICA
                     const booking = allPrenotazioni.find(p => {
-                        return p.Data === cellDateStr &&
-                               p.Ora_Inizio <= hourStart &&
-                               p.Ora_Fine >= hourEnd;
+                        const bookingStartSec = toSeconds(p.Ora_Inizio);
+                        const bookingEndSec = toSeconds(p.Ora_Fine);
+                        return p.ID_Aula == selectedAulaId &&
+                               p.Data === cellDateStr &&
+                               bookingStartSec <= hourStartSec &&
+                               bookingEndSec >= hourEndSec;
                     });
 
                     if (booking) {
@@ -526,7 +620,7 @@
                         const titleClass = isMyBooking ? 'booking-title' : 'booking-other-title';
                         
                         // Calcola rowspan
-                        const startHour = parseInt(hourStart.split(':')[0]);
+                        const startHour = parseInt(hourStartStr.split(':')[0]);
                         const endHour = parseInt(booking.Ora_Fine.split(':')[0]);
                         const span = Math.max(1, endHour - startHour);
                         
@@ -545,7 +639,7 @@
                         `;
                     } else {
                         row += `
-                            <td class="calendar-cell" data-date="${cellDateStr}" data-inizio="${hourStart}" data-fine="${hourEnd}">
+                            <td class="calendar-cell" data-date="${cellDateStr}" data-inizio="${hourStartStr}:00" data-fine="${hourEndStr}:00">
                             </td>
                         `;
                     }
@@ -594,8 +688,8 @@
                     $('#modifica-prenotazione-id').val(booking.ID_Prenotazione);
                     $('#modifica-prenota-aula').val(booking.ID_Aula);
                     $('#modifica-prenota-data').val(booking.Data);
-                    $('#modifica-prenota-ora-inizio').val(booking.Ora_Inizio);
-                    $('#modifica-prenota-ora-fine').val(booking.Ora_Fine);
+                    $('#modifica-prenota-ora-inizio').val(booking.Ora_Inizio.substring(0, 5));
+                    $('#modifica-prenota-ora-fine').val(booking.Ora_Fine.substring(0, 5));
                     
                     const modal = new bootstrap.Modal(document.getElementById('modificaPrenotazioneModal'));
                     modal.show();
@@ -606,6 +700,12 @@
                 
                 if (suitableAule.length === 0) {
                     showToast("Impossibile prenotare: nessuna aula disponibile.", "warning");
+                    return;
+                }
+
+                const selectedAulaId = $('#calendar-aula-select').val();
+                if (!selectedAulaId) {
+                    showToast("Seleziona prima un laboratorio dal menu a tendina.", "warning");
                     return;
                 }
 
@@ -620,6 +720,12 @@
                 $('#form-prenota-data').val(data);
                 $('#form-prenota-ora-inizio').val(oraInizio.substring(0,5));
                 $('#form-prenota-durata').val('1');
+                
+                $('#form-prenota-aula').val(selectedAulaId);
+                const selectedAula = suitableAule.find(a => a.ID_Aula == selectedAulaId);
+                if (selectedAula) {
+                    $('#form-prenota-aula-label').val(selectedAula.Nome_Aula);
+                }
                 
                 updateOraFine();
 
@@ -658,6 +764,16 @@
                 return;
             }
 
+            const data = $('#form-prenota-data').val();
+            const oraInizio = $('#form-prenota-ora-inizio').val();
+            const oraFine = $('#form-prenota-ora-fine').val();
+            
+            const conflict = checkConflict(aulaId, data, oraInizio, oraFine);
+            if (conflict) {
+                showToast("Orario non valido: l'aula selezionata è già occupata in questa fascia oraria.", "danger");
+                return;
+            }
+
             $.ajax({
                 url: '/professore/prenotazioni',
                 method: 'POST',
@@ -685,6 +801,17 @@
         $('#form-modifica-prenotazione').on('submit', function(e) {
             e.preventDefault();
             const id = $('#modifica-prenotazione-id').val();
+            
+            const aulaId = $('#modifica-prenota-aula').val();
+            const data = $('#modifica-prenota-data').val();
+            const oraInizio = $('#modifica-prenota-ora-inizio').val();
+            const oraFine = $('#modifica-prenota-ora-fine').val();
+
+            const conflict = checkConflict(aulaId, data, oraInizio, oraFine, id);
+            if (conflict) {
+                showToast("Orario non valido: l'aula selezionata è già occupata in questa fascia oraria.", "danger");
+                return;
+            }
             
             $.ajax({
                 url: `/professore/prenotazioni/${id}`,
@@ -843,10 +970,33 @@
                 url: '/professore/iscrizioni-gestite',
                 method: 'GET',
                 success: function(iscrizioni) {
-                    renderGestioneStudentiTable(iscrizioni);
+                    allIscrizioniGestite = iscrizioni;
+                    applyStudentiFilter();
                 }
             });
         }
+
+        function updateCorsoFilterOptions(corsi) {
+            const select = $('#filter-corso-studenti');
+            select.html('<option value="all">Tutti i corsi</option>');
+            corsi.forEach(c => {
+                select.append(`<option value="${c.ID_Corso}">${c.Nome}</option>`);
+            });
+        }
+
+        function applyStudentiFilter() {
+            const selectedCorsoId = $('#filter-corso-studenti').val();
+            if (selectedCorsoId === 'all') {
+                renderGestioneStudentiTable(allIscrizioniGestite);
+            } else {
+                const filtered = allIscrizioniGestite.filter(isc => isc.ID_Corso == selectedCorsoId || (isc.corso && isc.corso.ID_Corso == selectedCorsoId));
+                renderGestioneStudentiTable(filtered);
+            }
+        }
+
+        $(document).on('change', '#filter-corso-studenti', function() {
+            applyStudentiFilter();
+        });
 
         function renderGestioneStudentiTable(iscrizioni) {
             const tbody = $('#list-gestione-studenti-tbody');

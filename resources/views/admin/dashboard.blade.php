@@ -274,11 +274,37 @@
                     <div class="row">
                         <div class="col-6 mb-3">
                             <label for="prenotazione-ora-inizio" class="form-label text-secondary small fw-bold">Ora Inizio</label>
-                            <input type="time" class="form-control" id="prenotazione-ora-inizio" required>
+                            <select class="form-select" id="prenotazione-ora-inizio" required>
+                                <option value="08:00">08:00</option>
+                                <option value="09:00">09:00</option>
+                                <option value="10:00">10:00</option>
+                                <option value="11:00">11:00</option>
+                                <option value="12:00">12:00</option>
+                                <option value="13:00">13:00</option>
+                                <option value="14:00">14:00</option>
+                                <option value="15:00">15:00</option>
+                                <option value="16:00">16:00</option>
+                                <option value="17:00">17:00</option>
+                                <option value="18:00">18:00</option>
+                                <option value="19:00">19:00</option>
+                            </select>
                         </div>
                         <div class="col-6 mb-3">
                             <label for="prenotazione-ora-fine" class="form-label text-secondary small fw-bold">Ora Fine</label>
-                            <input type="time" class="form-control" id="prenotazione-ora-fine" required>
+                            <select class="form-select" id="prenotazione-ora-fine" required>
+                                <option value="09:00">09:00</option>
+                                <option value="10:00">10:00</option>
+                                <option value="11:00">11:00</option>
+                                <option value="12:00">12:00</option>
+                                <option value="13:00">13:00</option>
+                                <option value="14:00">14:00</option>
+                                <option value="15:00">15:00</option>
+                                <option value="16:00">16:00</option>
+                                <option value="17:00">17:00</option>
+                                <option value="18:00">18:00</option>
+                                <option value="19:00">19:00</option>
+                                <option value="20:00">20:00</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -705,7 +731,7 @@
                                     <div class="d-flex align-items-center gap-2 text-truncate" style="max-width: 70%;">
                                         <i class="fa-regular fa-circle-user text-muted fa-lg"></i>
                                         <h5 class="text-white mb-0 h6 text-truncate" title="${u.Username}">${u.Username}</h5>
-                                        ${isSelf ? '<span class="badge bg-secondary-subtle text-white border border-secondary py-0.5 px-1.5" style="font-size: 0.6rem !important;">Tu</span>' : ''}
+                                        ${isSelf ? '<span class="badge py-0.5 px-1.5" style="background: rgba(99, 102, 241, 0.25) !important; border: 1px solid rgba(99, 102, 241, 0.4) !important; color: #e0e7ff !important; font-size: 0.65rem !important;">Tu</span>' : ''}
                                     </div>
                                     ${roleBadge}
                                 </div>
@@ -856,6 +882,34 @@
             }
         });
 
+        function toSeconds(timeStr) {
+            if (!timeStr) return 0;
+            const parts = timeStr.split(':');
+            const h = parseInt(parts[0], 10) || 0;
+            const m = parseInt(parts[1], 10) || 0;
+            const s = parseInt(parts[2], 10) || 0;
+            return h * 3600 + m * 60 + s;
+        }
+
+        function checkConflict(aulaId, data, oraInizio, oraFine, excludeBookingId = null) {
+            const startSec = toSeconds(oraInizio);
+            const endSec = toSeconds(oraFine);
+            
+            const conflict = prenotazioniList.find(p => {
+                if (excludeBookingId && p.ID_Prenotazione == excludeBookingId) return false;
+                
+                const pStartSec = toSeconds(p.Ora_Inizio);
+                const pEndSec = toSeconds(p.Ora_Fine);
+                
+                return p.ID_Aula == aulaId &&
+                       p.Data === data &&
+                       pStartSec < endSec &&
+                       pEndSec > startSec;
+            });
+            
+            return conflict;
+        }
+
         // Calendario prenotazione
         function loadPrenotazioni() {
             $.ajax({
@@ -970,8 +1024,8 @@
                 $('#prenotazione-prof').val(booking.corso.professore.Username);
                 $('#prenotazione-aula').val(booking.ID_Aula);
                 $('#prenotazione-data').val(booking.Data);
-                $('#prenotazione-ora-inizio').val(booking.Ora_Inizio);
-                $('#prenotazione-ora-fine').val(booking.Ora_Fine);
+                $('#prenotazione-ora-inizio').val(booking.Ora_Inizio.substring(0, 5));
+                $('#prenotazione-ora-fine').val(booking.Ora_Fine.substring(0, 5));
                 
                 const modal = new bootstrap.Modal(document.getElementById('prenotazioneModal'));
                 modal.show();
@@ -983,14 +1037,46 @@
             e.preventDefault();
             const id = $('#prenotazione-id').val();
             
+            const oraInizio = $('#prenotazione-ora-inizio').val();
+            const oraFine = $('#prenotazione-ora-fine').val();
+
+            const startParts = oraInizio.split(':');
+            const endParts = oraFine.split(':');
+
+            const startHour = parseInt(startParts[0], 10);
+            const startMin = parseInt(startParts[1], 10);
+            const endHour = parseInt(endParts[0], 10);
+            const endMin = parseInt(endParts[1], 10);
+
+            if (startMin !== 0 || endMin !== 0) {
+                showToast("Le prenotazioni devono iniziare e terminare all'ora esatta (es. 08:00, 09:00).", "warning");
+                return;
+            }
+
+            if (startHour < 8 || endHour > 20 || (endHour === 20 && endMin !== 0)) {
+                showToast("Le prenotazioni sono consentite solo tra le 08:00 e le 20:00.", "warning");
+                return;
+            }
+
+            if (startHour >= endHour) {
+                showToast("L'ora di inizio deve essere precedente all'ora di fine.", "warning");
+                return;
+            }
+
+            const conflict = checkConflict($('#prenotazione-aula').val(), $('#prenotazione-data').val(), oraInizio, oraFine, id);
+            if (conflict) {
+                showToast("Orario non valido: l'aula selezionata è già occupata in questa fascia oraria.", "danger");
+                return;
+            }
+            
             $.ajax({
                 url: `/admin/prenotazioni/${id}`,
                 method: 'PUT',
                 data: {
                     ID_Aula: $('#prenotazione-aula').val(),
                     Data: $('#prenotazione-data').val(),
-                    Ora_Inizio: $('#prenotazione-ora-inizio').val(),
-                    Ora_Fine: $('#prenotazione-ora-fine').val()
+                    Ora_Inizio: oraInizio,
+                    Ora_Fine: oraFine
                 },
                 success: function(response) {
                     showToast('Prenotazione modificata con successo!');

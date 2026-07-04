@@ -84,6 +84,19 @@ class AdminController extends Controller
         $ora_inizio = $request->Ora_Inizio;
         $ora_fine = $request->Ora_Fine;
 
+        $start_minutes = date('i', strtotime($ora_inizio));
+        $end_minutes = date('i', strtotime($ora_fine));
+        $start_hour = date('H', strtotime($ora_inizio));
+        $end_hour = date('H', strtotime($ora_fine));
+
+        if ($start_minutes !== '00' || $end_minutes !== '00') {
+            return response()->json(['success' => false, 'message' => "Le prenotazioni devono iniziare e terminare esattamente all'ora (es. 08:00, 09:00)."], 400);
+        }
+
+        if ($start_hour < 8 || $end_hour > 20 || ($end_hour == 20 && $end_minutes !== '00')) {
+            return response()->json(['success' => false, 'message' => "Le prenotazioni sono consentite solo tra le 08:00 e le 20:00."], 400);
+        }
+
         if ($ora_inizio >= $ora_fine) {
             return response()->json(['success' => false, 'message' => "L'ora di inizio deve essere precedente all'ora di fine."], 400);
         }
