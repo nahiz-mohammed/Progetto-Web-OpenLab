@@ -25,7 +25,7 @@
                         <span class="input-group-text bg-transparent border-end-0" style="border-color: var(--card-border); color: var(--text-secondary);">
                             <i class="fa-regular fa-user"></i>
                         </span>
-                        <input type="text" class="form-control border-start-0 ps-0" id="Username" name="Username" placeholder="Es. admin, prof_rossi, matteo_99" required autocomplete="username">
+                        <input type="text" class="form-control border-start-0 ps-0" id="Username" name="Username" placeholder="Inserisci nome utente" required autocomplete="username">
                     </div>
                 </div>
 
