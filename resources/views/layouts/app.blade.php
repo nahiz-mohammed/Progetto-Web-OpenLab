@@ -185,7 +185,7 @@
                                 <div class="mb-3">
                                     <label for="notifica-ruolo-select" class="form-label text-secondary small">Seleziona Ruolo Destinatario</label>
                                     <select class="form-select" id="notifica-ruolo-select" required>
-                                        <option value="">Seleziona ruolo...</option>
+                                        <option value="" disabled selected hidden>Seleziona ruolo...</option>
                                         <option value="Admin">Admin</option>
                                         <option value="Professore">Professore</option>
                                         <option value="Studente">Studente</option>

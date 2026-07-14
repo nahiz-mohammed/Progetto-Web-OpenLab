@@ -56,6 +56,7 @@ Route::middleware(['auth', 'password.change'])->group(function () {
         Route::get('/professore', [ProfessoreController::class, 'dashboard']);
         Route::get('/professore/corsi', [ProfessoreController::class, 'getCorsi']);
         Route::post('/professore/corsi', [ProfessoreController::class, 'addCorso']);
+        Route::delete('/professore/corsi/{id}', [ProfessoreController::class, 'deleteCorso']);
         Route::get('/professore/aule-idonee', [ProfessoreController::class, 'getAuleIdonee']);
         Route::get('/professore/prenotazioni', [ProfessoreController::class, 'getPrenotazioni']);
         Route::post('/professore/prenotazioni', [ProfessoreController::class, 'createPrenotazione']);

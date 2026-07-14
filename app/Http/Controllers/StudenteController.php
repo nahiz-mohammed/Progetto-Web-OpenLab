@@ -79,12 +79,20 @@ class StudenteController extends Controller
             ->where('Stato', 'Approvato')
             ->pluck('ID_Corso');
 
-        $startOfWeek = Carbon::now('Europe/Rome')->startOfWeek()->toDateString();
+        $now = Carbon::now('Europe/Rome');
+        $todayStr = $now->toDateString();
+        $timeStr = $now->toTimeString();
 
-        // Ottieni tutte le prossime prenotazioni per questi corsi
+        // Ottieni tutte le prossime prenotazioni non ancora terminate per questi corsi
         $lezioni = Prenotazione::with(['corso.professore', 'aula'])
             ->whereIn('ID_Corso', $corsiApprovatiIds)
-            ->where('Data', '>=', $startOfWeek)
+            ->where(function ($query) use ($todayStr, $timeStr) {
+                $query->where('Data', '>', $todayStr)
+                      ->orWhere(function ($q) use ($todayStr, $timeStr) {
+                          $q->where('Data', '=', $todayStr)
+                            ->where('Ora_Fine', '>', $timeStr);
+                      });
+            })
             ->orderBy('Data', 'asc')
             ->orderBy('Ora_Inizio', 'asc')
             ->get();
@@ -112,7 +120,8 @@ class StudenteController extends Controller
                 'Aula_Tipologia' => $lezione->aula->Tipologia_Aula,
                 'Capienza_Max' => $lezione->aula->Capienza,
                 'Capienza_Attuale' => $presenzeConfermate,
-                'Gia_Confermato' => $giaConfermato
+                'Gia_Confermato' => $giaConfermato,
+                'Aula_Stato' => $lezione->aula->Stato,
             ];
         });
 

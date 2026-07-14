@@ -8,6 +8,7 @@ use App\Models\Corso;
 use App\Models\Aula;
 use App\Models\Prenotazione;
 use App\Models\IscrizioneCorso;
+use App\Models\ConfermaPresenza;
 
 class ProfessoreController extends Controller
 {
@@ -25,8 +26,10 @@ class ProfessoreController extends Controller
     public function addCorso(Request $request)
     {
         $request->validate([
-            'Nome' => 'required|string|max:150',
+            'Nome' => 'required|string|max:150|unique:corso,Nome',
             'Tipologia_Materia' => 'required|string|max:100',
+        ], [
+            'Nome.unique' => 'Un corso con questo nome è già registrato nel sistema.',
         ]);
 
         $corso = Corso::create([
@@ -38,14 +41,34 @@ class ProfessoreController extends Controller
         return response()->json(['success' => true, 'corso' => $corso]);
     }
 
+    public function deleteCorso($id)
+    {
+        $corso = Corso::findOrFail($id);
+        if ($corso->ID_Professore !== Auth::id()) {
+            return response()->json(['success' => false, 'message' => 'Non autorizzato.'], 403);
+        }
+
+        // Elimina in cascata le prenotazioni del corso e le relative conferme presenza
+        $prenotazioniIds = Prenotazione::where('ID_Corso', $corso->ID_Corso)->pluck('ID_Prenotazione');
+        ConfermaPresenza::whereIn('ID_Prenotazione', $prenotazioniIds)->delete();
+        Prenotazione::where('ID_Corso', $corso->ID_Corso)->delete();
+
+        // Elimina le iscrizioni al corso
+        IscrizioneCorso::where('ID_Corso', $corso->ID_Corso)->delete();
+
+        $corso->delete();
+
+        return response()->json(['success' => true]);
+    }
+
     public function getAuleIdonee(Request $request)
     {
         $request->validate([
             'ID_Corso' => 'nullable|integer|exists:corso,ID_Corso',
         ]);
 
-        // Recupera tutte le aule disponibili
-        $aule = Aula::where('Stato', 'Disponibile')->get();
+        // Recupera tutte le aule (comprese quelle in manutenzione)
+        $aule = Aula::all();
 
         return response()->json($aule);
     }
@@ -65,6 +88,16 @@ class ProfessoreController extends Controller
             'ID_Corso' => 'required|integer|exists:corso,ID_Corso',
             'ID_Aula' => 'required|integer|exists:aula,ID_Aula',
         ]);
+
+        $aula = Aula::findOrFail($request->ID_Aula);
+        if ($aula->Stato === 'Manutenzione') {
+            return response()->json(['success' => false, 'message' => "Non è possibile prenotare un'aula in manutenzione."], 400);
+        }
+
+        $today = date('Y-m-d');
+        if ($request->Data <= $today) {
+            return response()->json(['success' => false, 'message' => "Non è possibile prenotare lezioni per oggi o nel passato. La prenotazione deve essere effettuata a partire da domani."], 400);
+        }
 
         $corso = Corso::findOrFail($request->ID_Corso);
         if ($corso->ID_Professore !== Auth::id()) {
@@ -144,9 +177,22 @@ class ProfessoreController extends Controller
             'ID_Aula' => 'required|integer|exists:aula,ID_Aula',
         ]);
 
+        $aula = Aula::findOrFail($request->ID_Aula);
+        if ($aula->Stato === 'Manutenzione') {
+            return response()->json(['success' => false, 'message' => "Non è possibile spostare una lezione in un'aula in manutenzione."], 400);
+        }
+
         $prenotazione = Prenotazione::with(['corso', 'aula'])->findOrFail($id);
         if ($prenotazione->corso->ID_Professore !== Auth::id()) {
             return response()->json(['success' => false, 'message' => 'Non autorizzato.'], 403);
+        }
+
+        $today = date('Y-m-d');
+        if ($prenotazione->Data <= $today) {
+            return response()->json(['success' => false, 'message' => "Non è possibile modificare lezioni passate o di oggi."], 400);
+        }
+        if ($request->Data <= $today) {
+            return response()->json(['success' => false, 'message' => "La nuova data della lezione deve essere a partire da domani."], 400);
         }
 
         $vecchiaData = date('d/m/Y', strtotime($prenotazione->Data));

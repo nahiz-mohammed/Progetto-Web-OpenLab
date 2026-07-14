@@ -80,7 +80,19 @@ class AdminController extends Controller
             'Ora_Fine' => 'required',
             'ID_Aula' => 'required|integer|exists:aula,ID_Aula',
         ]);
+        $aula = Aula::findOrFail($request->ID_Aula);
+        if ($aula->Stato === 'Manutenzione') {
+            return response()->json(['success' => false, 'message' => "Non è possibile spostare una lezione in un'aula in manutenzione."], 400);
+        }
 
+        $prenotazione = Prenotazione::with(['corso', 'aula'])->findOrFail($id);
+        $today = date('Y-m-d');
+        if ($prenotazione->Data < $today) {
+            return response()->json(['success' => false, 'message' => "Non è possibile modificare lezioni passate."], 400);
+        }
+        if ($request->Data < $today) {
+            return response()->json(['success' => false, 'message' => "Non è possibile spostare una lezione nel passato."], 400);
+        }
         $ora_inizio = $request->Ora_Inizio;
         $ora_fine = $request->Ora_Fine;
 
@@ -116,7 +128,6 @@ class AdminController extends Controller
             return response()->json(['success' => false, 'message' => "L'aula selezionata è già occupata in questa fascia oraria."], 400);
         }
 
-        $prenotazione = Prenotazione::with(['corso', 'aula'])->findOrFail($id);
         $vecchiaData = date('d/m/Y', strtotime($prenotazione->Data));
 
         $prenotazione->update([

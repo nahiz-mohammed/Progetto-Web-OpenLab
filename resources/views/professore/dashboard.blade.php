@@ -2,6 +2,65 @@
 
 @section('title', 'Dashboard Professore - OpenLab')
 
+@section('styles')
+<style>
+    .calendar-cell.cell-disabled {
+        background-color: rgba(255, 255, 255, 0.02) !important;
+        cursor: not-allowed;
+        opacity: 0.4;
+    }
+    .calendar-cell.calendar-today {
+        background-color: rgba(99, 102, 241, 0.15) !important;
+        border: 2px solid var(--accent) !important;
+    }
+    .calendar-cell.calendar-today.cell-disabled {
+        background-color: rgba(99, 102, 241, 0.08) !important;
+        border: 1.5px dashed var(--accent) !important;
+        opacity: 0.55;
+    }
+    th.header-today {
+        background-color: rgba(99, 102, 241, 0.2) !important;
+        color: #fff !important;
+        border-bottom: 3px solid var(--accent) !important;
+    }
+    .calendar-cell.past-booking {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border-left: 4px solid #94a3b8 !important; /* Slate gray */
+        color: #94a3b8 !important;
+        cursor: not-allowed !important;
+        opacity: 0.6;
+    }
+    .calendar-cell.past-booking .booking-title, 
+    .calendar-cell.past-booking .booking-other-title, 
+    .calendar-cell.past-booking .booking-prof, 
+    .calendar-cell.past-booking .booking-time {
+        color: #94a3b8 !important;
+    }
+    .calendar-table.in-maintenance {
+        border: 2px solid #eab308 !important;
+    }
+    .calendar-table.in-maintenance th {
+        background-color: rgba(234, 179, 8, 0.15) !important;
+    }
+    .calendar-table.in-maintenance td.calendar-cell:not(.booked):not(.other-booked) {
+        background-color: rgba(234, 179, 8, 0.08) !important;
+        cursor: not-allowed !important;
+    }
+    .maintenance-badge {
+        background-color: #fef08a !important;
+        color: #854d0e !important;
+        border: 1px solid #facc15 !important;
+        padding: 0.15rem 0.4rem;
+        border-radius: 0.25rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.2rem;
+    }
+</style>
+@endsection
+
 @section('content')
 <div class="row mb-4">
     <div class="col-12">
@@ -79,9 +138,12 @@
                         <p class="text-secondary mb-0 small">Tipologia richiesta: <strong id="calendar-course-type">--</strong></p>
                     </div>
                     <div class="col-md-4">
-                        <label for="calendar-aula-select" class="form-label text-secondary small fw-bold mb-1">Visualizza Aula / Laboratorio</label>
+                        <label for="calendar-aula-select" class="form-label text-secondary small fw-bold mb-1 d-flex justify-content-between align-items-center">
+                            Visualizza Aula / Laboratorio
+                            <span id="calendar-aula-status-badge" class="d-none"></span>
+                        </label>
                         <select id="calendar-aula-select" class="form-select bg-dark text-white border-secondary">
-                            <option value="">Seleziona un laboratorio...</option>
+                            <option value="" disabled selected hidden>Seleziona un laboratorio...</option>
                         </select>
                     </div>
                     <div class="col-md-3 d-flex justify-content-end align-items-center">
@@ -415,11 +477,13 @@
             corsi.forEach(corso => {
                 const isActive = activeCorso && activeCorso.ID_Corso == corso.ID_Corso ? 'active' : '';
                 const card = `
-                    <div class="col">
+                    <div class="col animate-fade-in">
                         <div class="course-card ${isActive}" data-id="${corso.ID_Corso}">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h4 class="h5 text-white mb-0 font-display">${corso.Nome}</h4>
-                                <i class="fa-solid fa-graduation-cap text-accent"></i>
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h4 class="h5 text-white mb-0 font-display pe-2" style="font-size: 1.05rem; word-break: break-word;">${corso.Nome}</h4>
+                                <button class="btn btn-link btn-sm text-danger p-0 btn-delete-corso" data-id="${corso.ID_Corso}" style="text-decoration: none; margin-top: -2px;">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
                             </div>
                             <p class="text-secondary small mb-0">Materia: <strong class="text-light">${corso.Tipologia_Materia}</strong></p>
                         </div>
@@ -478,6 +542,41 @@
             tab.show();
         });
 
+        // Elimina Corso
+        $(document).on('click', '.btn-delete-corso', function(e) {
+            e.stopPropagation(); // Evita di selezionare il corso
+            
+            const id = $(this).data('id');
+            const corso = corsiList.find(c => c.ID_Corso == id);
+            
+            if (confirm(`Sei sicuro di voler eliminare il corso "${corso.Nome}"? Attenzione: questa operazione cancellerà tutte le relative prenotazioni sul calendario e le iscrizioni degli studenti a questo corso.`)) {
+                $.ajax({
+                    url: `/professore/corsi/${id}`,
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        showToast("Corso eliminato con successo!", "success");
+                        
+                        // Se il corso eliminato era quello attivo, resettiamo il calendario
+                        if (activeCorso && activeCorso.ID_Corso == id) {
+                            activeCorso = null;
+                            $('#no-course-alert').removeClass('d-none');
+                            $('#active-calendar-section').addClass('d-none');
+                        }
+                        
+                        loadCorsi();
+                    },
+                    error: function(xhr) {
+                        let msg = "Errore durante l'eliminazione del corso.";
+                        if(xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+                        showToast(msg, "danger");
+                    }
+                });
+            }
+        });
+
         function loadAuleIdonee(idCorso) {
             $.ajax({
                 url: '/professore/aule-idonee',
@@ -508,7 +607,7 @@
             }
 
             let html = '';
-            let calendarHtml = '<option value="">Seleziona un laboratorio...</option>';
+            let calendarHtml = '<option value="" disabled selected hidden>Seleziona un laboratorio...</option>';
             aule.forEach(aula => {
                 const opt = `<option value="${aula.ID_Aula}">${aula.Nome_Aula} (Tipologia: ${aula.Tipologia_Aula}, Capienza: ${aula.Capienza})</option>`;
                 html += opt;
@@ -582,6 +681,20 @@
                 return;
             }
 
+            const selectedAula = suitableAule.find(a => a.ID_Aula == selectedAulaId);
+            const isMaintenance = selectedAula && selectedAula.Stato === 'Manutenzione';
+            
+            const table = $('.calendar-table');
+            const statusBadge = $('#calendar-aula-status-badge');
+            
+            if (isMaintenance) {
+                table.addClass('in-maintenance');
+                statusBadge.removeClass('d-none').addClass('maintenance-badge').html('<i class="fa-solid fa-triangle-exclamation"></i> In Manutenzione');
+            } else {
+                table.removeClass('in-maintenance');
+                statusBadge.addClass('d-none').removeClass('maintenance-badge');
+            }
+
             updateCalendarDates();
 
             const skipCells = {};
@@ -615,8 +728,13 @@
                     });
 
                     if (booking) {
+                        const todayStr = formatDateForSQL(new Date());
+                        const isPast = booking.Data < todayStr;
                         const isMyBooking = booking.corso.ID_Professore == "{{ Auth::id() }}";
-                        const cellClass = isMyBooking ? 'calendar-cell booked' : 'calendar-cell other-booked';
+                        let cellClass = isMyBooking ? 'calendar-cell booked' : 'calendar-cell other-booked';
+                        if (isPast) {
+                            cellClass += ' past-booking';
+                        }
                         const titleClass = isMyBooking ? 'booking-title' : 'booking-other-title';
                         
                         // Calcola rowspan
@@ -638,8 +756,20 @@
                             </td>
                         `;
                     } else {
+                        const todayStr = formatDateForSQL(new Date());
+                        const isPastOrToday = cellDateStr <= todayStr;
+                        const isToday = cellDateStr === todayStr;
+                        
+                        let cellClass = 'calendar-cell';
+                        if (isPastOrToday) {
+                            cellClass += ' cell-disabled';
+                        }
+                        if (isToday) {
+                            cellClass += ' calendar-today';
+                        }
+
                         row += `
-                            <td class="calendar-cell" data-date="${cellDateStr}" data-inizio="${hourStartStr}:00" data-fine="${hourEndStr}:00">
+                            <td class="${cellClass}" data-date="${cellDateStr}" data-inizio="${hourStartStr}:00" data-fine="${hourEndStr}:00">
                             </td>
                         `;
                     }
@@ -651,6 +781,7 @@
 
         function updateCalendarDates() {
             const days = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì'];
+            const todayStr = formatDateForSQL(new Date());
             
             for (let i = 0; i < 5; i++) {
                 const date = new Date(selectedWeekStart);
@@ -659,7 +790,15 @@
                 const d = String(date.getDate()).padStart(2, '0');
                 const m = String(date.getMonth() + 1).padStart(2, '0');
                 
-                $(`#day-col-${i+1}`).html(`${days[i]}<br><span class="text-secondary small font-monospace">${d}/${m}</span>`);
+                const dateStr = formatDateForSQL(date);
+                const col = $(`#day-col-${i+1}`);
+                col.html(`${days[i]}<br><span class="text-secondary small font-monospace">${d}/${m}</span>`);
+                
+                if (dateStr === todayStr) {
+                    col.addClass('header-today');
+                } else {
+                    col.removeClass('header-today');
+                }
             }
 
             const weekEnd = new Date(selectedWeekStart);
@@ -675,8 +814,18 @@
 
         // Cella click
         $(document).on('click', '.calendar-cell', function() {
+            if ($('.calendar-table').hasClass('in-maintenance') && !$(this).hasClass('booked')) {
+                showToast("Quest'aula è in manutenzione e non può essere prenotata.", "warning");
+                return;
+            }
+
             if ($(this).hasClass('other-booked')) {
                 return; // Prenotata da altri professori, non cliccabile
+            }
+            
+            if ($(this).hasClass('cell-disabled')) {
+                showToast("Non è possibile prenotare lezioni per oggi o nel passato. La prenotazione deve essere effettuata a partire da domani.", "warning");
+                return;
             }
             
             if ($(this).hasClass('booked')) {
@@ -685,6 +834,12 @@
                 const booking = allPrenotazioni.find(p => p.ID_Prenotazione == id);
                 
                 if (booking) {
+                    const todayStr = formatDateForSQL(new Date());
+                    if (booking.Data <= todayStr) {
+                        showToast("Non è possibile modificare lezioni passate o di oggi.", "warning");
+                        return;
+                    }
+
                     $('#modifica-prenotazione-id').val(booking.ID_Prenotazione);
                     $('#modifica-prenota-aula').val(booking.ID_Aula);
                     $('#modifica-prenota-data').val(booking.Data);

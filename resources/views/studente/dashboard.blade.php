@@ -151,6 +151,13 @@
                             `;
                         }
 
+                        let iconColor = 'text-success';
+                        let badgeHtml = '';
+                        if (lez.Aula_Stato === 'Manutenzione') {
+                            iconColor = 'text-warning';
+                            badgeHtml = '<span class="badge bg-warning text-dark ms-1.5" style="font-size: 0.6rem !important; vertical-align: middle;">In manutenzione</span>';
+                        }
+
                         const card = `
                             <div class="col animate-fade-in">
                                 <div class="glass-card p-3 h-100 d-flex flex-column justify-content-between" style="background: rgba(255,255,255,0.01) !important;">
@@ -180,7 +187,7 @@
 
                                         <div class="pt-2 border-top" style="border-color: rgba(255,255,255,0.06) !important;">
                                             <div class="text-white fw-bold mb-2" style="font-size: 0.8rem;">
-                                                <i class="fa-solid fa-door-open me-1.5 text-success"></i>${lez.Aula_Nome}
+                                                <i class="fa-solid fa-door-open me-1.5 ${iconColor}"></i>${lez.Aula_Nome}${badgeHtml}
                                             </div>
                                             
                                             <div>

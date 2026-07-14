@@ -2,6 +2,32 @@
 
 @section('title', 'Dashboard Amministratore - OpenLab')
 
+@section('styles')
+<style>
+    .calendar-cell.calendar-today {
+        background-color: rgba(99, 102, 241, 0.15) !important;
+        border: 2px solid var(--accent) !important;
+    }
+    th.header-today {
+        background-color: rgba(99, 102, 241, 0.2) !important;
+        color: #fff !important;
+        border-bottom: 3px solid var(--accent) !important;
+    }
+    .calendar-cell.past-booking {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border-left: 4px solid #94a3b8 !important; /* Slate gray */
+        color: #94a3b8 !important;
+        cursor: not-allowed !important;
+        opacity: 0.6;
+    }
+    .calendar-cell.past-booking .booking-title, 
+    .calendar-cell.past-booking .booking-prof, 
+    .calendar-cell.past-booking .booking-time {
+        color: #94a3b8 !important;
+    }
+</style>
+@endsection
+
 @section('content')
 <div class="row mb-4">
     <div class="col-12">
@@ -155,7 +181,10 @@
             <!-- Controlli Calendario -->
             <div class="row mb-4 align-items-center gap-3">
                 <div class="col-md-4">
-                    <label for="select-calendario-aula" class="form-label text-secondary small fw-bold">Seleziona Aula</label>
+                    <label for="select-calendario-aula" class="form-label text-secondary small fw-bold d-flex justify-content-between align-items-center">
+                        Seleziona Aula
+                        <span id="calendar-aula-status-badge" class="d-none"></span>
+                    </label>
                     <select class="form-select" id="select-calendario-aula">
                         <!-- Popolato dinamicamente -->
                     </select>
@@ -929,6 +958,20 @@
             const selectedAulaId = $('#select-calendario-aula').val();
             if (!selectedAulaId) return;
 
+            const selectedAula = auleList.find(a => a.ID_Aula == selectedAulaId);
+            const isMaintenance = selectedAula && selectedAula.Stato === 'Manutenzione';
+            
+            const table = $('.calendar-table');
+            const statusBadge = $('#calendar-aula-status-badge');
+            
+            if (isMaintenance) {
+                table.addClass('in-maintenance');
+                statusBadge.removeClass('d-none').addClass('maintenance-badge').html('<i class="fa-solid fa-triangle-exclamation"></i> In Manutenzione');
+            } else {
+                table.removeClass('in-maintenance');
+                statusBadge.addClass('d-none').removeClass('maintenance-badge');
+            }
+
             // Aggiorna le etichette delle colonne con le date della settimana selezionata
             updateCalendarDates();
 
@@ -950,20 +993,24 @@
                     cellDate.setDate(selectedWeekStart.getDate() + dayOffset);
                     const cellDateStr = formatDateForSQL(cellDate);
 
-                    const hourStart = fascia.split(' - ')[0] + ':00';
-                    const hourEnd = fascia.split(' - ')[1] + ':00';
+                    const hourStartStr = fascia.split(' - ')[0];
+                    const hourEndStr = fascia.split(' - ')[1];
+                    const hourStartSec = toSeconds(hourStartStr);
+                    const hourEndSec = toSeconds(hourEndStr);
 
                     // Cerca prenotazione per questa aula, questa data e questo orario
                     const booking = prenotazioniList.find(p => {
+                        const bookingStartSec = toSeconds(p.Ora_Inizio);
+                        const bookingEndSec = toSeconds(p.Ora_Fine);
                         return p.ID_Aula == selectedAulaId &&
                                p.Data === cellDateStr &&
-                               p.Ora_Inizio <= hourStart &&
-                               p.Ora_Fine >= hourEnd;
+                               bookingStartSec <= hourStartSec &&
+                               bookingEndSec >= hourEndSec;
                     });
 
                     if (booking) {
                         // Calcola rowspan
-                        const startHour = parseInt(hourStart.split(':')[0]);
+                        const startHour = parseInt(hourStartStr.split(':')[0]);
                         const endHour = parseInt(booking.Ora_Fine.split(':')[0]);
                         const span = Math.max(1, endHour - startHour);
                         
@@ -971,8 +1018,12 @@
                             skipCells[dayOffset + '_' + (index + r)] = true;
                         }
                         
+                        const todayStr = formatDateForSQL(new Date());
+                        const isPast = booking.Data < todayStr;
+                        const cellClass = isPast ? 'calendar-cell booked past-booking' : 'calendar-cell booked';
+                        
                         row += `
-                            <td class="calendar-cell booked" data-id="${booking.ID_Prenotazione}" rowspan="${span}">
+                            <td class="${cellClass}" data-id="${booking.ID_Prenotazione}" rowspan="${span}">
                                 <div class="booking-info animate-fade-in" style="height: 100%; display: flex; flex-direction: column; justify-content: center;">
                                     <div class="booking-title" title="${booking.corso.Nome}">${booking.corso.Nome}</div>
                                     <div class="booking-prof">${booking.corso.professore.Username}</div>
@@ -981,7 +1032,10 @@
                             </td>
                         `;
                     } else {
-                        row += `<td class="calendar-cell"></td>`;
+                        const todayStr = formatDateForSQL(new Date());
+                        const isToday = cellDateStr === todayStr;
+                        const cellClass = isToday ? 'calendar-cell calendar-today' : 'calendar-cell';
+                        row += `<td class="${cellClass}"></td>`;
                     }
                 }
                 row += '</tr>';
@@ -991,6 +1045,7 @@
 
         function updateCalendarDates() {
             const days = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì'];
+            const todayStr = formatDateForSQL(new Date());
             
             for (let i = 0; i < 5; i++) {
                 const date = new Date(selectedWeekStart);
@@ -999,7 +1054,15 @@
                 const d = String(date.getDate()).padStart(2, '0');
                 const m = String(date.getMonth() + 1).padStart(2, '0');
                 
-                $(`#day-col-${i+1}`).html(`${days[i]}<br><span class="text-secondary small font-monospace">${d}/${m}</span>`);
+                const dateStr = formatDateForSQL(date);
+                const col = $(`#day-col-${i+1}`);
+                col.html(`${days[i]}<br><span class="text-secondary small font-monospace">${d}/${m}</span>`);
+                
+                if (dateStr === todayStr) {
+                    col.addClass('header-today');
+                } else {
+                    col.removeClass('header-today');
+                }
             }
 
             const weekEnd = new Date(selectedWeekStart);
@@ -1015,6 +1078,10 @@
 
         // Click su cella prenotata
         $(document).on('click', '.calendar-cell.booked', function() {
+            if ($(this).hasClass('past-booking')) {
+                showToast("Non è possibile modificare lezioni passate.", "warning");
+                return;
+            }
             const id = $(this).data('id');
             const booking = prenotazioniList.find(p => p.ID_Prenotazione == id);
             
